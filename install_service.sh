@@ -16,12 +16,6 @@ if [ ! -f "start_scripts.sh" ]; then
     exit 1
 fi
 
-# Make all script files executable
-echo "Setting executable permissions for all scripts..."
-chmod +x debug_service.sh
-chmod +x start_scripts.sh
-chmod +x stop_scripts.sh
-
 # Copy the script to the user's home directory
 cp start_scripts.sh /home/scad-pi/raspberry-pi-server/
 chmod +x /home/scad-pi/raspberry-pi-server/start_scripts.sh
