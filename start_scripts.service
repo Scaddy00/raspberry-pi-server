@@ -3,12 +3,11 @@ Description=Start Python applications via screen sessions
 After=network.target
 
 [Service]
-Type=simple
+Type=oneshot
 User=scad-pi
 WorkingDirectory=/home/scad-pi/raspberry-pi-server
 ExecStart=/bin/bash /home/scad-pi/raspberry-pi-server/start_scripts.sh
-Restart=always
-RestartSec=10
+RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal
 
