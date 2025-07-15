@@ -9,14 +9,15 @@ python_apps["discord_bot"]="apps/wish_discord_bot/main.py"
 python_apps["jw_group"]="apps/jw_group_app/main.py"
 python_apps["talk_sync"]="apps/talk_sync_app/main.py"
 
-log_dir="/home/scad-pi/bash_logs"
+main_dir="/home/scad-pi"
+log_dir="$main_dir/bash_logs"
 mkdir -p "$log_dir"
 log_file="$log_dir/start_scripts.log"
 
 echo "$(date) - MAIN - Starting all Python apps in screen sessions..." | tee -a "$log_file"
 
 for app in "${!python_apps[@]}"; do
-    script_path="${python_apps[$app]}"
+    script_path="$main_dir/${python_apps[$app]}"
     log_file_app="$log_dir/${app}.log"
     screen_name="pyapp_${app}"
 
