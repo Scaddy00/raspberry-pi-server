@@ -14,6 +14,9 @@ log_dir="$main_dir/bash_logs"
 mkdir -p "$log_dir"
 log_file="$log_dir/start_scripts.log"
 
+# Global virtual environment path
+venv_python="/opt/python_venv/raspberry_pi_apps/bin/python3"
+
 echo "$(date) - MAIN - Starting all Python apps in screen sessions..." | tee -a "$log_file"
 
 # Clean up any dead screen sessions first
@@ -44,7 +47,7 @@ for app in "${!python_apps[@]}"; do
     fi
 
     echo "$(date) - MAIN - Starting $script_path in screen session $screen_name." | tee -a "$log_file"
-    screen -dmS "$screen_name" bash -c "python3 '$script_path' >> '$log_file_app' 2>&1"
+    screen -dmS "$screen_name" bash -c "'$venv_python' '$script_path' >> '$log_file_app' 2>&1"
     if [ $? -eq 0 ]; then
         echo "$(date) - MAIN - $script_path started in screen session $screen_name." | tee -a "$log_file"
     else
