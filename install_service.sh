@@ -19,6 +19,10 @@ fi
 # Make the script executable
 chmod +x start_scripts.sh
 
+# Copy the script to the user's home directory
+cp start_scripts.sh /home/scad-pi/raspberry_pi_server/
+chmod +x /home/scad-pi/raspberry_pi_server/start_scripts.sh
+
 # Copy the service file to the systemd directory
 cp start_scripts.service /etc/systemd/system/
 

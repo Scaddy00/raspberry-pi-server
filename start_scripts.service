@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=scad-pi
-WorkingDirectory=/home/scad-pi
-ExecStart=/bin/bash /home/scad-pi/start_scripts.sh
+WorkingDirectory=/home/scad-pi/raspberry_pi_server
+ExecStart=/bin/bash /home/scad-pi/raspberry_pi_server/start_scripts.sh
 Restart=always
 RestartSec=10
 StandardOutput=journal

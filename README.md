@@ -29,7 +29,14 @@ raspberry_pi_server/
 
 ```
 /home/scad-pi/
-├── apps/                   # Python applications
+├── raspberry_pi_server/   # Repository folder
+│   ├── start_scripts.sh   # Main startup script
+│   ├── stop_scripts.sh    # Shutdown script
+│   ├── debug_service.sh   # Diagnostics script
+│   ├── install_service.sh # Installation script
+│   ├── start_scripts.service # Systemd configuration
+│   └── README.md          # Documentation
+├── apps/                  # Python applications
 │   ├── wish_discord_bot/
 │   ├── jw_group_app/
 │   └── talk_sync_app/
@@ -67,6 +74,8 @@ raspberry_pi_server/
    ```bash
    sudo systemctl status start_scripts.service
    ```
+
+**Note:** The installation script will copy `start_scripts.sh` to `/home/scad-pi/raspberry_pi_server/` and configure the systemd service to use this location.
 
 ## ⚙️ Configuration
 
