@@ -5,7 +5,7 @@
 
 # List of Python scripts to start (relative or absolute paths)
 declare -A python_apps
-python_apps["discord_bot"]="apps/discord_bot/main.py"
+python_apps["discord_bot"]="apps/wish_discord_bot/main.py"
 python_apps["jw_group"]="apps/jw_group_app/main.py"
 python_apps["talk_sync"]="apps/talk_sync_app/main.py"
 

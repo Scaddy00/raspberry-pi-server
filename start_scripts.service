@@ -1,0 +1,14 @@
+[Unit]
+Description=Start sh script
+After=network.target
+
+[Service]
+Type=simple
+User=scad-pi
+WorkingDirectory=/home/scad-pi
+ExecStart=/bin/bash /raspberry-pi-server/start_scripts.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
