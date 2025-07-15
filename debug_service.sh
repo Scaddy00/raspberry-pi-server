@@ -28,9 +28,9 @@ echo ""
 
 # Check if script exists and is executable
 echo "4. Script verification:"
-if [ -f "/home/scad-pi/raspberry_pi_server/start_scripts.sh" ]; then
+if [ -f "/home/scad-pi/raspberry-pi-server/start_scripts.sh" ]; then
     echo "   ✓ Script found"
-    if [ -x "/home/scad-pi/raspberry_pi_server/start_scripts.sh" ]; then
+    if [ -x "/home/scad-pi/raspberry-pi-server/start_scripts.sh" ]; then
         echo "   ✓ Script executable"
     else
         echo "   ✗ Script NOT executable"
@@ -42,13 +42,13 @@ echo ""
 
 # Check directory permissions
 echo "5. Directory permissions:"
-ls -la /home/scad-pi/raspberry_pi_server/ | head -10
+ls -la /home/scad-pi/raspberry-pi-server/ | head -10
 echo ""
 
 # Manual script test
 echo "6. Manual script test:"
-echo "   Executing /home/scad-pi/raspberry_pi_server/start_scripts.sh..."
-cd /home/scad-pi/raspberry_pi_server && ./start_scripts.sh
+echo "   Executing /home/scad-pi/raspberry-pi-server/start_scripts.sh..."
+cd /home/scad-pi/raspberry-pi-server && ./start_scripts.sh
 echo ""
 
 echo "=== DIAGNOSTICS COMPLETE ===" 
