@@ -16,6 +16,10 @@ log_file="$log_dir/start_scripts.log"
 
 echo "$(date) - MAIN - Starting all Python apps in screen sessions..." | tee -a "$log_file"
 
+# Clean up any dead screen sessions first
+echo "$(date) - MAIN - Cleaning up dead screen sessions..." | tee -a "$log_file"
+screen -wipe >/dev/null 2>&1
+
 for app in "${!python_apps[@]}"; do
     script_path="$main_dir/${python_apps[$app]}"
     log_file_app="$log_dir/${app}.log"
@@ -26,10 +30,17 @@ for app in "${!python_apps[@]}"; do
         continue
     fi
 
-    # Check if screen session already exists
+    # Check if screen session already exists and is active
     if screen -list | grep -q "\.${screen_name}"; then
-        echo "$(date) - MAIN - Screen session $screen_name already running for $script_path." | tee -a "$log_file"
-        continue
+        # Check if the session is dead
+        if screen -list | grep -q "\.${screen_name}.*Dead"; then
+            echo "$(date) - MAIN - Found dead screen session $screen_name, removing it." | tee -a "$log_file"
+            screen -S "$screen_name" -X quit >/dev/null 2>&1
+            sleep 1
+        else
+            echo "$(date) - MAIN - Screen session $screen_name already running for $script_path." | tee -a "$log_file"
+            continue
+        fi
     fi
 
     echo "$(date) - MAIN - Starting $script_path in screen session $screen_name." | tee -a "$log_file"
