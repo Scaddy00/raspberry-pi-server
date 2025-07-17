@@ -7,7 +7,7 @@ echo "=== Configuration Debug Script ==="
 
 # Source the configuration utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/config_utils.sh"
+source "$SCRIPT_DIR/../config_utils.sh"
 
 echo "1. Checking if jq is installed..."
 if command -v jq &> /dev/null; then
@@ -21,21 +21,22 @@ fi
 
 echo ""
 echo "2. Checking config file..."
-if [ -f "apps_config.json" ]; then
-    echo "✅ Config file exists: apps_config.json"
+config_file=$(get_config_file_path)
+if [ -f "$config_file" ]; then
+    echo "✅ Config file exists: $config_file"
 else
-    echo "❌ Config file not found: apps_config.json"
+    echo "❌ Config file not found: $config_file"
     exit 1
 fi
 
 echo ""
 echo "3. Validating JSON format..."
-if jq empty "apps_config.json" 2>/dev/null; then
+if jq empty "$config_file" 2>/dev/null; then
     echo "✅ JSON format is valid"
 else
     echo "❌ JSON format is invalid"
     echo "JSON validation error:"
-    jq empty "apps_config.json"
+    jq empty "$config_file"
     exit 1
 fi
 
