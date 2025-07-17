@@ -118,8 +118,8 @@ README.md
   - **repair_environment.sh**: Solves common installation issues (e.g. creates directories/logs, sets permissions, checks jq).
 
 ### service_installer/
-- **python-apps-autostart.service**: systemd unit file (template) for automatic startup of Python apps at system boot.
-- **install_service.sh**: Installs and configures the systemd service for the current user. Creates a user-specific copy of the .service file, enables and reloads systemd.
+- **python-apps-autostart.service**: systemd unit file template for automatic startup of Python apps at system boot. Uses `%i` as a placeholder for the username that gets replaced during installation.
+- **install_service.sh**: Installs and configures the systemd service for the current user. Uses the template file, replaces `%i` with the current username, creates a user-specific service file (e.g., `python-apps-autostart-mario.service`), and enables it in systemd.
 - **fix_permissions.sh**: Sets execution permissions on all main scripts in app_manager and service_installer.
 - **debug/**: Contains debug scripts for the service:
   - **test_service_startup.sh**: Allows you to manually test the service startup as systemd would.
@@ -207,6 +207,18 @@ Install the service:
 ```bash
 sudo ./install_service.sh
 ```
+
+**How the service installation works:**
+1. The script reads the `python-apps-autostart.service` template file
+2. Replaces all instances of `%i` with the current username
+3. Creates a user-specific service file (e.g., `python-apps-autostart-mario.service`)
+4. Copies it to `/etc/systemd/system/`
+5. Enables the service for automatic startup
+
+**Template variables:**
+- `%i` → Current username (e.g., `mario`)
+- Example: `User=%i` becomes `User=mario`
+- Example: `/home/%i/raspberry-pi-server/` becomes `/home/mario/raspberry-pi-server/`
 
 Check the service status:
 ```bash
