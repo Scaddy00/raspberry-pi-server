@@ -44,35 +44,57 @@ fi
 # Make scripts executable
 chmod +x ../app_manager/*.sh
 
-# Copy the service file to the systemd directory (with correct path)
-sudo cp python-apps-autostart.service $SERVICE_PATH
+# Create user-specific service file
+USER_SERVICE_NAME=python-apps-autostart-$CURRENT_USER.service
+USER_SERVICE_PATH=/etc/systemd/system/$USER_SERVICE_NAME
 
-# Reload systemd configuration first
+echo "Creating user-specific service: $USER_SERVICE_NAME"
+
+# Create the user-specific service content
+cat > /tmp/$USER_SERVICE_NAME << EOF
+[Unit]
+Description=Python Applications Auto-Start Manager for $CURRENT_USER
+After=network.target
+
+[Service]
+Type=oneshot
+User=$CURRENT_USER
+WorkingDirectory=/home/$CURRENT_USER/raspberry-pi-server
+ExecStart=/bin/bash /home/$CURRENT_USER/raspberry-pi-server/app_manager/start_scripts.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Copy the user-specific service file
+sudo cp /tmp/$USER_SERVICE_NAME $USER_SERVICE_PATH
+
+# Clean up temp file
+rm /tmp/$USER_SERVICE_NAME
+
+# Reload systemd configuration
 sudo systemctl daemon-reload
 
-# Try to enable the user-specific service instance
-if sudo systemctl enable python-apps-autostart@$CURRENT_USER.service; then
-    echo "Service enabled successfully"
-else
-    echo "Trying alternative method..."
-    # Alternative: manually create the symlink
-    sudo systemctl link $SERVICE_PATH
-    sudo systemctl enable python-apps-autostart@$CURRENT_USER.service
-fi
+# Enable the user-specific service
+sudo systemctl enable $USER_SERVICE_NAME
 
 # Verify installation
-if systemctl is-enabled python-apps-autostart@$CURRENT_USER.service >/dev/null 2>&1; then
+if systemctl is-enabled $USER_SERVICE_NAME >/dev/null 2>&1; then
     echo "Service installed and enabled successfully!"
 else
     echo "Warning: Service installation may have failed. Check with:"
-    echo "  sudo systemctl status python-apps-autostart@$CURRENT_USER.service"
+    echo "  sudo systemctl status $USER_SERVICE_NAME"
 fi
+
 echo ""
 echo "Useful commands:"
-echo "  sudo systemctl start python-apps-autostart@$CURRENT_USER.service    # Start the service"
-echo "  sudo systemctl stop python-apps-autostart@$CURRENT_USER.service     # Stop the service"
-echo "  sudo systemctl status python-apps-autostart@$CURRENT_USER.service   # Check status"
-echo "  sudo systemctl restart python-apps-autostart@$CURRENT_USER.service  # Restart the service"
-echo "  sudo journalctl -u python-apps-autostart@$CURRENT_USER.service -f  # View logs in real-time"
+echo "  sudo systemctl start $USER_SERVICE_NAME    # Start the service"
+echo "  sudo systemctl stop $USER_SERVICE_NAME     # Stop the service"
+echo "  sudo systemctl status $USER_SERVICE_NAME   # Check status"
+echo "  sudo systemctl restart $USER_SERVICE_NAME  # Restart the service"
+echo "  sudo journalctl -u $USER_SERVICE_NAME -f  # View logs in real-time"
 echo ""
 echo "Note: The service will start apps defined in app_manager/apps_config.json" 
