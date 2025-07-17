@@ -6,23 +6,58 @@ This repository provides a complete system to:
 - Install and manage a systemd service for automatic startup
 - Monitor and view logs
 
+---
+
 ## 📁 Folder Structure
 
 ```
 app_manager/
-  manage_apps.sh                   # Main script to manage all apps
-  start_scripts.sh                 # Starts all apps in screen sessions
-  stop_scripts.sh                  # Stops all apps
-  config_utils.sh                  # Utility to read the JSON configuration
-  apps_config.json                 # Centralized app configuration
-  apps_config_template.json        # Template for new configurations
+  manage_apps.sh            # Main script to manage all apps (start/stop/status/list/logs)
+  config_utils.sh           # Utility functions for configuration
+  apps_config.json          # Centralized app configuration
+  apps_config_template.json # Configuration template
+  debug/
+    validate_config.sh      # Debug for configuration and functions
+    repair_environment.sh   # Script for installation fix and recovery
 
 service_installer/
-  python-apps-autostart.service    # systemd unit file for automatic startup
-  install_service.sh               # Script to install the service
-  set_permissions.sh               # Script to set correct permissions
-  debug_service.sh                 # Script to debug the service
+  python-apps-autostart.service # systemd unit file for autostart
+  install_service.sh            # Installs/updates the systemd service
+  fix_permissions.sh            # Sets correct permissions on scripts
+  debug/
+    test_service_startup.sh     # Debug for the systemd service
+    check_service_installation.sh # Debug for service installation
+
+README.md
+.gitignore
+.vscode/settings.json
 ```
+
+---
+
+## 📄 Files and Folders: Description and Usage
+
+### app_manager/
+- **manage_apps.sh**: Main script to manage all Python apps. Allows you to start, stop, check status, restart, list, and view logs of configured apps. All main operations go through this script.
+- **config_utils.sh**: Collection of Bash functions to read and validate the JSON configuration using jq. Used by all main scripts.
+- **apps_config.json**: Central configuration file where you define the apps to manage, paths, Python command, and log directory.
+- **apps_config_template.json**: Example/template to create a new configuration.
+- **debug/**: Contains debug and recovery scripts:
+  - **validate_config.sh**: Checks the validity of the configuration and reading functions.
+  - **repair_environment.sh**: Solves common installation issues (e.g. creates directories/logs, sets permissions, checks jq).
+
+### service_installer/
+- **python-apps-autostart.service**: systemd unit file (template) for automatic startup of Python apps at system boot.
+- **install_service.sh**: Installs and configures the systemd service for the current user. Creates a user-specific copy of the .service file, enables and reloads systemd.
+- **fix_permissions.sh**: Sets execution permissions on all main scripts in app_manager and service_installer.
+- **debug/**: Contains debug scripts for the service:
+  - **test_service_startup.sh**: Allows you to manually test the service startup as systemd would.
+  - **check_service_installation.sh**: Checks correct installation and registration of the systemd service.
+
+### Other files
+- **README.md**: This file, with detailed instructions and explanations.
+- **.gitignore**: Git configuration file.
+- **.vscode/settings.json**: Local configuration for the VSCode editor (optional).
 
 ---
 
@@ -33,14 +68,14 @@ service_installer/
   ```bash
   sudo apt-get install jq
   ```
-- **screen** to manage sessions:
+- **screen** for session management:
   ```bash
   sudo apt-get install screen
   ```
 
 ---
 
-## 🚀 Python Application Management (`app_manager/`)
+## 🚀 How to Use the System
 
 ### 1. App Configuration
 
@@ -62,9 +97,9 @@ Edit `app_manager/apps_config.json` to add/remove apps:
 }
 ```
 
-### 2. Main Commands
+### 2. Main Commands (from app_manager/)
 
-Go to the `app_manager/` folder and make the scripts executable:
+Make the scripts executable:
 ```bash
 chmod +x *.sh
 ```
@@ -90,48 +125,9 @@ Run the commands:
 ./manage_apps.sh logs
 ```
 
-### 3. Output Example
+### 3. Service Installation and Management (from service_installer/)
 
-**Status**
-```
-=== Application Status ===
-Total configured applications: 2
-
-App: my_app
-  Description: Description of my app
-  Script: /home/pi/apps/my_app/main.py
-  Screen: pyapp_my_app
-  Status: RUNNING
-  Script file: EXISTS
-
-=== Summary ===
-Running: 1
-Stopped: 1
-Dead: 0
-Missing scripts: 0
-```
-
-**Logs**
-```
-=== my_app ===
-Last 10 lines of my_app.log:
-2024-01-15 10:30:15 - INFO - App started
-...
-```
-
----
-
-## 🛡️ Systemd Service Installation & Management (`service_installer/`)
-
-### 1. Main Files
-- `python-apps-autostart.service`: systemd unit file
-- `install_service.sh`: installs/updates the service
-- `set_permissions.sh`: sets correct permissions
-- `debug_service.sh`: helps debug the service
-
-### 2. Service Installation
-
-Go to the `service_installer/` folder and make the scripts executable:
+Make the scripts executable:
 ```bash
 chmod +x *.sh
 ```
@@ -143,45 +139,48 @@ sudo ./install_service.sh
 
 Check the service status:
 ```bash
-systemctl status python-apps-autostart@$(whoami).service
+systemctl status python-apps-autostart-$(whoami).service
 ```
 
 View the service logs:
 ```bash
-journalctl -u python-apps-autostart@$(whoami).service -e
+journalctl -u python-apps-autostart-$(whoami).service -e
 ```
 
-### 3. Debug & Permissions
+To fix permission issues:
+```bash
+./fix_permissions.sh
+```
 
-- Use `set_permissions.sh` to fix file/script permissions
-- Use `debug_service.sh` to manually test script startup as systemd would
+For advanced debugging:
+- Use the scripts in `debug/` in the respective folders to validate configuration, restore installation, or manually test the systemd service.
 
 ---
 
 ## 📝 Useful Notes
 
-- **Adding new apps**: just edit `apps_config.json` and restart
-- **Logs**: all logs are in `log_dir` (e.g. `/home/pi/bash_logs`)
-- **Screen**: each app runs in a separate screen session, you can attach with `screen -r screen_name`
-- **Safety**: only apps defined in the config are managed/terminated
-- **Validation**: configuration errors are reported on screen and in the logs
+- **Adding new apps**: Edit `apps_config.json` and restart via `manage_apps.sh restart`.
+- **Logs**: All logs are in the directory specified in `log_dir`.
+- **Screen**: Each app runs in a separate screen session, you can attach with `screen -r screen_name`.
+- **Safety**: Only apps defined in the config are managed/terminated.
+- **Validation**: Configuration errors are reported on screen and in the logs.
 
 ---
 
 ## ❓ Troubleshooting
 
-- **App does not start**: check script path, permissions, logs, and that `python3` is installed
-- **Service does not start**: use `systemctl status python-apps-autostart@$(whoami).service` and `journalctl -u python-apps-autostart@$(whoami).service`
-- **Screen "Dead"**: restart with `./manage_apps.sh restart` or clean with `screen -wipe`
+- **App does not start**: Check script path, permissions, logs, and that `python3` is installed.
+- **Service does not start**: Use `systemctl status` and `journalctl` as above.
+- **Screen "Dead"**: Restart with `./manage_apps.sh restart` or clean with `screen -wipe`.
 - **jq not found**: `sudo apt-get install jq`
-- **Permissions**: make sure all scripts are executable
+- **Permissions**: Make sure all scripts are executable (`./fix_permissions.sh`).
 
 ---
 
 ## 📚 Example Full Workflow
 
 ```bash
-# 1. Configure apps in app_manager/apps_config.json
+# 1. Configure the apps in app_manager/apps_config.json
 # 2. Make all scripts executable
 chmod +x app_manager/*.sh service_installer/*.sh
 
@@ -194,8 +193,4 @@ cd ../app_manager
 ./manage_apps.sh start
 ./manage_apps.sh status
 ./manage_apps.sh logs
-```
-
----
-
-**For any questions, check this README or the comments in the individual scripts!** 
+``` 

@@ -31,8 +31,8 @@ if [ ! -d "../app_manager" ]; then
 fi
 
 # Check if required scripts exist in app_manager
-if [ ! -f "../app_manager/start_scripts.sh" ]; then
-    echo "Error: start_scripts.sh not found in app_manager directory!"
+if [ ! -f "../app_manager/manage_apps.sh" ]; then
+    echo "Error: manage_apps.sh not found in app_manager directory!"
     exit 1
 fi
 
@@ -60,7 +60,7 @@ After=network.target
 Type=oneshot
 User=$CURRENT_USER
 WorkingDirectory=/home/$CURRENT_USER/raspberry-pi-server/app_manager
-ExecStart=/bin/bash start_scripts.sh
+ExecStart=/bin/bash manage_apps.sh start
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal

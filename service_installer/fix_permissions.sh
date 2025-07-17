@@ -7,16 +7,16 @@ echo "Giving execution permissions to scripts..."
 # List of all shell scripts in app_manager to make executable
 app_manager_scripts=(
     "../app_manager/manage_apps.sh"
-    "../app_manager/start_scripts.sh"
-    "../app_manager/stop_scripts.sh"
+    "../app_manager/stop_all_apps.sh"
     "../app_manager/config_utils.sh"
 )
 
 # List of all shell scripts in service_installer to make executable
 service_scripts=(
     "install_service.sh"
-    "set_permissions.sh"
-    "debug_service.sh"
+    "fix_permissions.sh"
+    "debug/test_service_startup.sh"
+    "debug/check_service_installation.sh"
 )
 
 echo "Setting permissions for app_manager scripts..."
