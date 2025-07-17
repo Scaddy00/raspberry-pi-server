@@ -6,16 +6,15 @@
 # Function to get the config file path dynamically
 get_config_file_path() {
     # Get the directory of the calling script
-    local script_dir=""
-    
-    # If we're in debug directory, go up one level
-    if [[ "${BASH_SOURCE[1]}" == *"/debug/"* ]]; then
-        script_dir="$(cd "$(dirname "${BASH_SOURCE[1]}")/.." && pwd)"
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
+    local config_file=""
+    # If the script is in a debug directory, go up one level
+    if [[ "$script_dir" == */debug ]]; then
+        config_file="$(dirname "$script_dir")/apps_config.json"
     else
-        script_dir="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
+        config_file="$script_dir/apps_config.json"
     fi
-    
-    echo "$script_dir/apps_config.json"
+    echo "$config_file"
 }
 
 # Function to check if jq is installed
