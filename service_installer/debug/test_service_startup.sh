@@ -13,10 +13,10 @@ fi
 
 # Check if the service file exists
 echo "1. Service file verification:"
-if [ -f "/etc/systemd/system/python-apps-autostart.service" ]; then
+if [ -f "/etc/systemd/system/python-apps-autostart-$CURRENT_USER.service" ]; then
     echo "   ✓ Service file found"
     echo "   File content:"
-    cat /etc/systemd/system/python-apps-autostart.service
+    cat /etc/systemd/system/python-apps-autostart-$CURRENT_USER.service
 else
     echo "   ✗ Service file NOT found"
 fi
@@ -24,12 +24,12 @@ echo ""
 
 # Check service status
 echo "2. Service status:"
-systemctl status python-apps-autostart@$CURRENT_USER.service
+systemctl status python-apps-autostart-$CURRENT_USER.service
 echo ""
 
 # Check service logs
 echo "3. Recent service logs:"
-journalctl -u python-apps-autostart@$CURRENT_USER.service --no-pager -n 20
+journalctl -u python-apps-autostart-$CURRENT_USER.service --no-pager -n 20
 echo ""
 
 # Check if app_manager directory exists
@@ -44,15 +44,15 @@ echo ""
 # Check if required scripts exist and are executable
 echo "5. Script verification:"
 required_scripts=(
-    "/home/$CURRENT_USER/raspberry-pi-server/app_manager/start_scripts.sh"
-    "/home/$CURRENT_USER/raspberry-pi-server/app_manager/config_utils.sh"
     "/home/$CURRENT_USER/raspberry-pi-server/app_manager/manage_apps.sh"
+    "/home/$CURRENT_USER/raspberry-pi-server/app_manager/config_utils.sh"
+    "/home/$CURRENT_USER/raspberry-pi-server/app_manager/apps_config.json"
 )
 
 for script in "${required_scripts[@]}"; do
     if [ -f "$script" ]; then
         echo "   ✓ Script found: $(basename "$script")"
-        if [ -x "$script" ]; then
+        if [ -x "$script" ] || [[ "$script" == *.json ]]; then
             echo "   ✓ Script executable: $(basename "$script")"
         else
             echo "   ✗ Script NOT executable: $(basename "$script")"
@@ -90,7 +90,7 @@ echo ""
 # Manual script test
 echo "8. Manual script test:"
 echo "   Executing app manager start script..."
-cd /home/$CURRENT_USER/raspberry-pi-server/app_manager && ./start_scripts.sh
+cd /home/$CURRENT_USER/raspberry-pi-server/app_manager && ./manage_apps.sh start
 echo ""
 
 echo "=== DIAGNOSTICS COMPLETE ==="

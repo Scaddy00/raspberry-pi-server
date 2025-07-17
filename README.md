@@ -66,6 +66,16 @@ Follow these steps to set up and use the Python App Manager on your Raspberry Pi
 
 8. **(Optional) Advanced debugging and repair**
    - Use the scripts in `app_manager/debug/` and `service_installer/debug/` for troubleshooting, configuration validation, or repairing the environment.
+   - **Repair environment**: If you encounter issues, run:
+     ```bash
+     cd app_manager/debug
+     ./repair_environment.sh
+     ```
+   - **Validate configuration**: Check your setup with:
+     ```bash
+     cd app_manager/debug
+     ./validate_config.sh
+     ```
 
 ---
 
@@ -225,6 +235,7 @@ For advanced debugging:
 - **Screen**: Each app runs in a separate screen session, you can attach with `screen -r screen_name`.
 - **Safety**: Only apps defined in the config are managed/terminated.
 - **Validation**: Configuration errors are reported on screen and in the logs.
+- **Repair**: Use `repair_environment.sh` to fix common installation issues automatically.
 
 ---
 
@@ -235,6 +246,8 @@ For advanced debugging:
 - **Screen "Dead"**: Restart with `./manage_apps.sh restart` or clean with `screen -wipe`.
 - **jq not found**: `sudo apt-get install jq`
 - **Permissions**: Make sure all scripts are executable (`./fix_permissions.sh`).
+- **Environment issues**: Run `./repair_environment.sh` to automatically fix common problems.
+- **Configuration issues**: Run `./validate_config.sh` to check your setup.
 
 ---
 
@@ -245,13 +258,23 @@ For advanced debugging:
 # 2. Make all scripts executable
 chmod +x app_manager/*.sh service_installer/*.sh
 
-# 3. Install the service (optional)
+# 3. (Optional) Repair environment if needed
+cd app_manager/debug
+./repair_environment.sh
+cd ../..
+
+# 4. (Optional) Install the service
 cd service_installer
 sudo ./install_service.sh
+cd ..
 
-# 4. Manage the apps
-cd ../app_manager
+# 5. Manage the apps
+cd app_manager
 ./manage_apps.sh start
 ./manage_apps.sh status
 ./manage_apps.sh logs
+
+# 6. (Optional) Debug if needed
+cd debug
+./validate_config.sh
 ``` 
