@@ -8,6 +8,21 @@ This repository provides a complete system to:
 
 ---
 
+## 📋 Table of Contents
+
+- [🚦 Step-by-step Installation Guide](#-step-by-step-installation-guide)
+- [📁 Folder Structure](#-folder-structure)
+- [📄 Files and Folders: Description and Usage](#-files-and-folders-description-and-usage)
+- [⚙️ Requirements](#️-requirements)
+- [🚀 How to Use the System](#-how-to-use-the-system)
+  - [1. App Configuration](#1-app-configuration)
+  - [2. Main Commands (from app_manager/)](#2-main-commands-from-app_manager)
+  - [3. Service Installation and Management (from service_installer/)](#3-service-installation-and-management-from-service_installer)
+- [📝 Useful Notes](#-useful-notes)
+- [❓ Troubleshooting](#-troubleshooting)
+
+---
+
 ## 🚦 Step-by-step Installation Guide
 
 Follow these steps to set up and use the Python App Manager on your Raspberry Pi (or compatible Linux system):
