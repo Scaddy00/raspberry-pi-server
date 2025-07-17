@@ -71,9 +71,13 @@ for app in $app_names; do
     echo "    screen_name: $(get_screen_name "$app")"
     echo "    description: $(get_app_description "$app")"
     
-    script_path="$main_dir/$(get_script_path "$app")"
-    echo "    full_script_path: $script_path"
-    if [ -f "$script_path" ]; then
+    # Expand $USER in the main_dir and script_path
+    expanded_main_dir=$(eval echo "$main_dir")
+    script_path_rel=$(get_script_path "$app")
+    expanded_script_path="$expanded_main_dir/$script_path_rel"
+    echo "    full_script_path: $expanded_script_path"
+    
+    if [ -f "$expanded_script_path" ]; then
         echo "    ✅ Script file exists"
     else
         echo "    ❌ Script file NOT found"
@@ -92,10 +96,12 @@ fi
 
 echo ""
 echo "7. Checking log directory..."
-if [ -d "$log_dir" ]; then
-    echo "✅ Log directory exists: $log_dir"
+# Expand $USER in log_dir
+expanded_log_dir=$(eval echo "$log_dir")
+if [ -d "$expanded_log_dir" ]; then
+    echo "✅ Log directory exists: $expanded_log_dir"
 else
-    echo "⚠️  Log directory does not exist: $log_dir"
+    echo "⚠️  Log directory does not exist: $expanded_log_dir"
     echo "Will be created when needed"
 fi
 
