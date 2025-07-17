@@ -3,11 +3,14 @@
 # Script to install and configure the systemd service
 # Run this script as root (sudo)
 
+SERVICE_NAME=python-apps-autostart.service
+SERVICE_PATH=/etc/systemd/system/$SERVICE_NAME
+
 echo "Installing systemd service for Python app manager..."
 
 # Verify that files exist
-if [ ! -f "python-apps-autostart.service" ]; then
-    echo "Error: python-apps-autostart.service not found!"
+if [ ! -f "start_scripts.service" ]; then
+    echo "Error: start_scripts.service not found!"
     exit 1
 fi
 
@@ -32,22 +35,22 @@ fi
 # Make scripts executable
 chmod +x ../app_manager/*.sh
 
-# Copy the service file to the systemd directory
-cp python-apps-autostart.service /etc/systemd/system/
+# Copy the service file to the systemd directory (with correct path)
+sudo cp start_scripts.service $SERVICE_PATH
 
 # Reload systemd configuration
-systemctl daemon-reload
+sudo systemctl daemon-reload
 
 # Enable the service for automatic startup
-systemctl enable python-apps-autostart.service
+sudo systemctl enable $SERVICE_NAME
 
 echo "Service installed and enabled!"
 echo ""
 echo "Useful commands:"
-echo "  sudo systemctl start python-apps-autostart.service    # Start the service"
-echo "  sudo systemctl stop python-apps-autostart.service     # Stop the service"
-echo "  sudo systemctl status python-apps-autostart.service   # Check status"
-echo "  sudo systemctl restart python-apps-autostart.service  # Restart the service"
-echo "  sudo journalctl -u python-apps-autostart.service -f  # View logs in real-time"
+echo "  sudo systemctl start $SERVICE_NAME    # Start the service"
+echo "  sudo systemctl stop $SERVICE_NAME     # Stop the service"
+echo "  sudo systemctl status $SERVICE_NAME   # Check status"
+echo "  sudo systemctl restart $SERVICE_NAME  # Restart the service"
+echo "  sudo journalctl -u $SERVICE_NAME -f  # View logs in real-time"
 echo ""
 echo "Note: The service will start apps defined in app_manager/apps_config.json" 

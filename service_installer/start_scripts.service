@@ -1,0 +1,15 @@
+[Unit]
+Description=Python Applications Auto-Start Manager
+After=network.target
+
+[Service]
+Type=oneshot
+User=scad-pi
+WorkingDirectory=/home/scad-pi/raspberry-pi-server
+ExecStart=/bin/bash /home/scad-pi/raspberry-pi-server/app_manager/start_scripts.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target 
