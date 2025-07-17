@@ -3,7 +3,7 @@
 # Start multiple Python scripts directly from a single Bash file
 # Each script is started in a separate screen session, with separate logs and central summary log
 
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+set -uo pipefail  # Exit on undefined vars, pipe failures (but not on command errors)
 
 # Source the configuration utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
