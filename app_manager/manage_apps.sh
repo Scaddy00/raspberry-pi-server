@@ -12,9 +12,11 @@ source "$SCRIPT_DIR/config_utils.sh"
 # Check if config file exists and is valid
 check_config_file
 
-# Get configuration values
+# Get configuration values and expand $USER
 main_dir=$(get_main_dir)
 log_dir=$(get_log_dir)
+expanded_main_dir=$(eval echo "$main_dir")
+expanded_log_dir=$(eval echo "$log_dir")
 
 # Validate configuration
 if [ -z "$main_dir" ] || [ -z "$log_dir" ]; then
@@ -23,7 +25,7 @@ if [ -z "$main_dir" ] || [ -z "$log_dir" ]; then
 fi
 
 # Logging function with timestamp and level, with emoji
-log_file="$log_dir/manage_apps.log"
+log_file="$expanded_log_dir/manage_apps.log"
 log_message() {
     local level="$1"
     local message="$2"
@@ -83,7 +85,8 @@ show_status() {
     
     for app in $app_names; do
         screen_name=$(get_screen_name "$app")
-        script_path="$main_dir/$(get_script_path "$app")"
+        script_path_rel=$(get_script_path "$app")
+        script_path="$expanded_main_dir/$script_path_rel"
         description=$(get_app_description "$app")
         
         echo "App: $app"
@@ -171,7 +174,7 @@ show_logs() {
     fi
     
     for app in $app_names; do
-        log_file_app="$log_dir/${app}.log"
+        log_file_app="$expanded_log_dir/${app}.log"
         
         echo "=== $app ==="
         if [ -f "$log_file_app" ]; then
@@ -190,7 +193,7 @@ show_logs() {
     # Show main logs
     echo "=== Main Logs ==="
     for log_type in "start_scripts" "stop_scripts"; do
-        log_file_type="$log_dir/${log_type}.log"
+        log_file_type="$expanded_log_dir/${log_type}.log"
         echo "=== $log_type.log ==="
         if [ -f "$log_file_type" ]; then
             if [ -s "$log_file_type" ]; then
@@ -204,6 +207,85 @@ show_logs() {
         fi
         echo ""
     done
+}
+
+# Function to start all managed apps
+start_all_apps() {
+    log_message "INFO" "Starting all configured Python applications."
+    
+    # Get all app names from configuration
+    app_names=$(get_app_names)
+    app_count=$(get_app_count)
+    python_cmd=$(get_python_cmd)
+    
+    if [ -z "$app_names" ]; then
+        log_message "WARNING" "No applications configured."
+        return 0
+    fi
+
+    log_message "INFO" "Found $app_count configured applications to start."
+
+    # Statistics
+    started_count=0
+    already_running_count=0
+    failed_count=0
+
+    for app in $app_names; do
+        screen_name=$(get_screen_name "$app")
+        script_path_rel=$(get_script_path "$app")
+        script_path="$expanded_main_dir/$script_path_rel"
+        description=$(get_app_description "$app")
+        
+        log_message "INFO" "Starting app: $app ($description)"
+        log_message "INFO" "Script: $script_path"
+        log_message "INFO" "Screen: $screen_name"
+        
+        # Check if script file exists
+        if [ ! -f "$script_path" ]; then
+            log_message "ERROR" "Script file not found: $script_path"
+            ((failed_count++))
+            continue
+        fi
+        
+        # Check if screen session already exists
+        if screen -list | grep -q "\.${screen_name}"; then
+            if screen -list | grep -q "\.${screen_name}.*Dead"; then
+                log_message "INFO" "Screen $screen_name is dead, removing it first."
+                screen -S "$screen_name" -X quit >/dev/null 2>&1
+                sleep 1
+            else
+                log_message "INFO" "Screen $screen_name is already running."
+                ((already_running_count++))
+                continue
+            fi
+        fi
+        
+        # Start the application in a screen session
+        log_message "INFO" "Starting $app in screen session $screen_name..."
+        if screen -dmS "$screen_name" "$python_cmd" "$script_path"; then
+            sleep 1
+            # Verify the screen session started successfully
+            if screen -list | grep -q "\.${screen_name}"; then
+                log_message "SUCCESS" "Application $app started successfully in screen $screen_name."
+                ((started_count++))
+            else
+                log_message "ERROR" "Screen session $screen_name not found after start attempt."
+                ((failed_count++))
+            fi
+        else
+            log_message "ERROR" "Failed to start application $app in screen $screen_name."
+            ((failed_count++))
+        fi
+        
+        sleep 0.5
+    done
+
+    # Final summary
+    log_message "INFO" "=== Start Summary ==="
+    log_message "INFO" "Started: $started_count"
+    log_message "INFO" "Already running: $already_running_count"
+    log_message "INFO" "Failed: $failed_count"
+    log_message "INFO" "All configured applications have been processed."
 }
 
 # Function to stop all managed apps (merged from stop_all_apps.sh)
@@ -279,7 +361,12 @@ stop_all_apps() {
 case "${1:-}" in
     start)
         log_message "INFO" "Starting all configured applications..."
-        # (Assume start logic is now handled here or in manage_apps.sh itself)
+        if start_all_apps; then
+            log_message "SUCCESS" "All applications started."
+        else
+            log_message "ERROR" "Some applications failed to start."
+            exit 1
+        fi
         ;;
     stop)
         log_message "INFO" "Stopping all configured applications..."
@@ -297,8 +384,12 @@ case "${1:-}" in
         log_message "INFO" "Restarting all configured applications..."
         if stop_all_apps; then
             sleep 2
-            # (Assume start logic is now handled here or in manage_apps.sh itself)
-            log_message "SUCCESS" "All applications restarted."
+            if start_all_apps; then
+                log_message "SUCCESS" "All applications restarted."
+            else
+                log_message "ERROR" "Some applications failed to start during restart."
+                exit 1
+            fi
         else
             log_message "ERROR" "Some applications failed to stop during restart."
             exit 1

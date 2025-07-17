@@ -7,8 +7,9 @@ echo "Giving execution permissions to scripts..."
 # List of all shell scripts in app_manager to make executable
 app_manager_scripts=(
     "../app_manager/manage_apps.sh"
-    "../app_manager/stop_all_apps.sh"
     "../app_manager/config_utils.sh"
+    "../app_manager/debug/validate_config.sh"
+    "../app_manager/debug/repair_environment.sh"
 )
 
 # List of all shell scripts in service_installer to make executable
@@ -48,8 +49,10 @@ echo "Operation completed!"
 # Show current permissions to verify
 echo ""
 echo "Current app_manager script permissions:"
-ls -la ../app_manager/*.sh
+ls -la ../app_manager/*.sh 2>/dev/null || echo "No .sh files found in app_manager"
+ls -la ../app_manager/debug/*.sh 2>/dev/null || echo "No .sh files found in app_manager/debug"
 
 echo ""
 echo "Current service_installer script permissions:"
-ls -la *.sh 
+ls -la *.sh 2>/dev/null || echo "No .sh files found in service_installer"
+ls -la debug/*.sh 2>/dev/null || echo "No .sh files found in service_installer/debug" 
