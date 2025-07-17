@@ -50,8 +50,15 @@ sudo cp python-apps-autostart.service $SERVICE_PATH
 # Reload systemd configuration first
 sudo systemctl daemon-reload
 
-# Enable the user-specific service instance
-sudo systemctl enable python-apps-autostart@$CURRENT_USER.service
+# Try to enable the user-specific service instance
+if sudo systemctl enable python-apps-autostart@$CURRENT_USER.service; then
+    echo "Service enabled successfully"
+else
+    echo "Trying alternative method..."
+    # Alternative: manually create the symlink
+    sudo systemctl link $SERVICE_PATH
+    sudo systemctl enable python-apps-autostart@$CURRENT_USER.service
+fi
 
 # Verify installation
 if systemctl is-enabled python-apps-autostart@$CURRENT_USER.service >/dev/null 2>&1; then
