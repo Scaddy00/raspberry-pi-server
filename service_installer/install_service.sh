@@ -47,14 +47,19 @@ chmod +x ../app_manager/*.sh
 # Copy the service file to the systemd directory (with correct path)
 sudo cp python-apps-autostart.service $SERVICE_PATH
 
-# Create user-specific service instance
-sudo systemctl link $SERVICE_PATH
-sudo systemctl enable python-apps-autostart@$CURRENT_USER.service
-
-# Reload systemd configuration
+# Reload systemd configuration first
 sudo systemctl daemon-reload
 
-echo "Service installed and enabled!"
+# Enable the user-specific service instance
+sudo systemctl enable python-apps-autostart@$CURRENT_USER.service
+
+# Verify installation
+if systemctl is-enabled python-apps-autostart@$CURRENT_USER.service >/dev/null 2>&1; then
+    echo "Service installed and enabled successfully!"
+else
+    echo "Warning: Service installation may have failed. Check with:"
+    echo "  sudo systemctl status python-apps-autostart@$CURRENT_USER.service"
+fi
 echo ""
 echo "Useful commands:"
 echo "  sudo systemctl start python-apps-autostart@$CURRENT_USER.service    # Start the service"
