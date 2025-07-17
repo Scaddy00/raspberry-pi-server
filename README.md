@@ -1,325 +1,200 @@
-# Raspberry Pi Server - Python Applications Management System
+# Raspberry Pi Python App Manager & Service Installer
 
-This project implements an automated management system for Python applications on Raspberry Pi, using `systemd` for automatic startup and `screen` for session management.
+This repository provides a complete system to:
+- Manage multiple Python applications in parallel using screen
+- Automate the start/stop of apps
+- Install and manage a systemd service for automatic startup
+- Monitor and view logs
 
-## 📋 Overview
-
-The system automatically manages the startup and monitoring of multiple Python applications through separate `screen` sessions, with centralized logging and integrated diagnostics.
-
-### Managed Applications
-
-The system currently manages the following Python applications:
-
-- **Discord Bot** (`apps/wish_discord_bot/main.py`)
-- **JW Group App** (`apps/jw_group_app/main.py`) 
-- **Talk Sync App** (`apps/talk_sync_app/main.py`)
-
-## 🏗️ Architecture
+## 📁 Folder Structure
 
 ```
-raspberry_pi_server/
-├── start_scripts.service    # Systemd configuration
-├── start_scripts.sh        # Main startup script
-├── stop_scripts.sh         # Shutdown script
-├── install_service.sh      # Installation script
-└── debug_service.sh        # Diagnostics script
+app_manager/
+  manage_apps.sh           # Main script to manage all apps
+  start_scripts.sh         # Starts all apps in screen sessions
+  stop_scripts.sh          # Stops all apps
+  config_utils.sh          # Utility to read the JSON configuration
+  apps_config.json         # Centralized app configuration
+
+service_installer/
+  python-apps-autostart.service    # systemd unit file for automatic startup
+  install_service.sh       # Script to install the service
+  set_permissions.sh       # Script to set correct permissions
+  debug_service.sh         # Script to debug the service
 ```
-
-## 📁 Directory Structure
-
-```
-/home/scad-pi/
-├── raspberry_pi_server/   # Repository folder
-│   ├── start_scripts.sh   # Main startup script
-│   ├── stop_scripts.sh    # Shutdown script
-│   ├── debug_service.sh   # Diagnostics script
-│   ├── install_service.sh # Installation script
-│   ├── start_scripts.service # Systemd configuration
-│   └── README.md          # Documentation
-├── apps/                  # Python applications
-│   ├── wish_discord_bot/
-│   ├── jw_group_app/
-│   └── talk_sync_app/
-├── bash_logs/             # Centralized logs
-│   ├── start_scripts.log  # Main log
-│   ├── discord_bot.log    # Discord bot log
-│   ├── jw_group.log       # JW Group app log
-│   └── talk_sync.log      # Talk Sync app log
-└── [other project files]
-```
-
-## 🚀 Installation
-
-### Prerequisites
-
-- Raspberry Pi with Raspberry Pi OS
-- Python 3 installed
-- `scad-pi` user configured
-- Python applications in the specified directories
-
-### Installation Steps
-
-1. **Clone or copy the project files:**
-   ```bash
-   # Make sure you're in the project directory
-   cd /path/to/raspberry_pi_server
-   ```
-
-2. **Run the installation script:**
-   ```bash
-   sudo ./install_service.sh
-   ```
-
-3. **Verify the installation:**
-   ```bash
-   sudo systemctl status start_scripts.service
-   ```
-
-**Note:** The installation script will copy `start_scripts.sh` to `/home/scad-pi/raspberry_pi_server/` and configure the systemd service to use this location.
-
-## ⚙️ Configuration
-
-### Modifying Managed Applications
-
-To add or remove applications, edit the `start_scripts.sh` file:
-
-```bash
-# Add new applications here
-python_apps["app_name"]="path/to/app/main.py"
-```
-
-### Service Configuration
-
-The systemd service is configured in `start_scripts.service`:
-
-- **User:** `scad-pi`
-- **Working directory:** `/home/scad-pi`
-- **Auto-restart:** Enabled (10 seconds wait)
-- **Logs:** Managed via journald
-
-## 🎮 Usage
-
-### Main Commands
-
-#### Systemd Service Management
-
-```bash
-# Start the service
-sudo systemctl start start_scripts.service
-
-# Stop the service
-sudo systemctl stop start_scripts.service
-
-# Restart the service
-sudo systemctl restart start_scripts.service
-
-# Check status
-sudo systemctl status start_scripts.service
-
-# Enable/disable automatic startup
-sudo systemctl enable start_scripts.service
-sudo systemctl disable start_scripts.service
-```
-
-#### Screen Sessions Management
-
-```bash
-# View all active screen sessions
-screen -ls
-
-# Connect to a specific session
-screen -r pyapp_discord_bot
-screen -r pyapp_jw_group
-screen -r pyapp_talk_sync
-
-# Exit a session (Ctrl+A, then D)
-# Within the screen session: Ctrl+A, D
-```
-
-#### Management Scripts
-
-```bash
-# Manually start applications
-./start_scripts.sh
-
-# Stop all applications
-./stop_scripts.sh
-
-# Diagnose problems
-./debug_service.sh
-```
-
-### Monitoring and Logs
-
-#### Log Viewing
-
-```bash
-# Systemd service logs
-sudo journalctl -u start_scripts.service -f
-
-# Main logs
-tail -f /home/scad-pi/bash_logs/start_scripts.log
-
-# Application-specific logs
-tail -f /home/scad-pi/bash_logs/discord_bot.log
-tail -f /home/scad-pi/bash_logs/jw_group.log
-tail -f /home/scad-pi/bash_logs/talk_sync.log
-```
-
-#### Status Check
-
-```bash
-# General system status
-sudo systemctl status start_scripts.service
-
-# Active screen sessions
-screen -ls
-
-# Running Python processes
-ps aux | grep python
-```
-
-## 🔧 Troubleshooting
-
-### Automatic Diagnostics
-
-Run the diagnostics script to identify common problems:
-
-```bash
-./debug_service.sh
-```
-
-This script verifies:
-- Presence of systemd service file
-- Service status
-- Recent logs
-- Script permissions
-- Script executability
-
-### Common Problems
-
-#### Service won't start
-```bash
-# Check logs
-sudo journalctl -u start_scripts.service -n 50
-
-# Verify permissions
-ls -la /home/scad-pi/start_scripts.sh
-
-# Manual test
-cd /home/scad-pi && ./start_scripts.sh
-```
-
-#### Applications won't start
-```bash
-# Check specific logs
-tail -f /home/scad-pi/bash_logs/*.log
-
-# Verify Python dependencies
-python3 -c "import sys; print(sys.path)"
-```
-
-#### Screen sessions don't create
-```bash
-# Verify screen is installed
-which screen
-
-# Check permissions
-ls -la /home/scad-pi/
-```
-
-## 📊 Monitoring
-
-### Metrics to Monitor
-
-- **Systemd service status**
-- **Number of active screen sessions**
-- **Memory usage of Python applications**
-- **Error logs in applications**
-
-### Monitoring Commands
-
-```bash
-# General status
-sudo systemctl status start_scripts.service
-
-# Active sessions
-screen -ls
-
-# Resource usage
-htop
-top
-
-# Real-time logs
-sudo journalctl -u start_scripts.service -f
-```
-
-## 🔄 Maintenance
-
-### Updates
-
-1. **Stop the service:**
-   ```bash
-   sudo systemctl stop start_scripts.service
-   ```
-
-2. **Update files:**
-   ```bash
-   # Copy new files
-   cp start_scripts.sh /home/scad-pi/
-   chmod +x /home/scad-pi/start_scripts.sh
-   ```
-
-3. **Restart the service:**
-   ```bash
-   sudo systemctl start start_scripts.service
-   ```
-
-### Backup
-
-```bash
-# Configuration backup
-sudo cp /etc/systemd/system/start_scripts.service /backup/
-
-# Logs backup
-tar -czf logs_backup_$(date +%Y%m%d).tar.gz /home/scad-pi/bash_logs/
-```
-
-## 📝 Technical Notes
-
-### Implementation Details
-
-- **Systemd Service:** Manages automatic startup and restart
-- **Screen Sessions:** Each Python application runs in a separate screen session
-- **Logging:** Centralized logs with timestamps for each application
-- **Error Handling:** Automatic restart in case of crashes
-
-### Security
-
-- The service runs with the `scad-pi` user (not root)
-- Logs are saved in dedicated directories
-- Appropriate permissions on scripts
-
-## 🤝 Contributing
-
-To modify or extend the system:
-
-1. Edit `start_scripts.sh` to add new applications
-2. Update `start_scripts.service` if necessary
-3. Test changes with `debug_service.sh`
-4. Restart the service to apply changes
-
-## 📞 Support
-
-In case of problems:
-
-1. Run `./debug_service.sh` for automatic diagnostics
-2. Check logs in `/home/scad-pi/bash_logs/`
-3. Verify service status with `systemctl status start_scripts.service`
-4. Check screen sessions with `screen -ls`
 
 ---
 
-**Version:** 1.0  
-**Date:** $(date +%Y-%m-%d)  
-**Author:** Raspberry Pi Server System 
+## ⚙️ Requirements
+
+- **Python 3** installed and accessible as `python3`
+- **jq** for JSON parsing:
+  ```bash
+  sudo apt-get install jq
+  ```
+- **screen** to manage sessions:
+  ```bash
+  sudo apt-get install screen
+  ```
+
+---
+
+## 🚀 Python Application Management (`app_manager/`)
+
+### 1. App Configuration
+
+Edit `app_manager/apps_config.json` to add/remove apps:
+```json
+{
+  "apps": {
+    "my_app": {
+      "script_path": "apps/my_app/main.py",
+      "screen_name": "pyapp_my_app",
+      "description": "Description of my app"
+    }
+  },
+  "settings": {
+    "main_dir": "/home/pi",
+    "python_cmd": "python3",
+    "log_dir": "/home/pi/bash_logs"
+  }
+}
+```
+
+### 2. Main Commands
+
+Go to the `app_manager/` folder and make the scripts executable:
+```bash
+chmod +x *.sh
+```
+
+Run the commands:
+```bash
+# Start all apps
+./manage_apps.sh start
+
+# Stop all apps
+./manage_apps.sh stop
+
+# Detailed status
+./manage_apps.sh status
+
+# Restart all apps
+./manage_apps.sh restart
+
+# List configured apps
+./manage_apps.sh list
+
+# Show recent logs
+./manage_apps.sh logs
+```
+
+### 3. Output Example
+
+**Status**
+```
+=== Application Status ===
+Total configured applications: 2
+
+App: my_app
+  Description: Description of my app
+  Script: /home/pi/apps/my_app/main.py
+  Screen: pyapp_my_app
+  Status: RUNNING
+  Script file: EXISTS
+
+=== Summary ===
+Running: 1
+Stopped: 1
+Dead: 0
+Missing scripts: 0
+```
+
+**Logs**
+```
+=== my_app ===
+Last 10 lines of my_app.log:
+2024-01-15 10:30:15 - INFO - App started
+...
+```
+
+---
+
+## 🛡️ Systemd Service Installation & Management (`service_installer/`)
+
+### 1. Main Files
+- `python-apps-autostart.service`: systemd unit file
+- `install_service.sh`: installs/updates the service
+- `set_permissions.sh`: sets correct permissions
+- `debug_service.sh`: helps debug the service
+
+### 2. Service Installation
+
+Go to the `service_installer/` folder and make the scripts executable:
+```bash
+chmod +x *.sh
+```
+
+Install the service:
+```bash
+sudo ./install_service.sh
+```
+
+Check the service status:
+```bash
+systemctl status python-apps-autostart.service
+```
+
+View the service logs:
+```bash
+journalctl -u python-apps-autostart.service -e
+```
+
+### 3. Debug & Permissions
+
+- Use `set_permissions.sh` to fix file/script permissions
+- Use `debug_service.sh` to manually test script startup as systemd would
+
+---
+
+## 📝 Useful Notes
+
+- **Adding new apps**: just edit `apps_config.json` and restart
+- **Logs**: all logs are in `log_dir` (e.g. `/home/pi/bash_logs`)
+- **Screen**: each app runs in a separate screen session, you can attach with `screen -r screen_name`
+- **Safety**: only apps defined in the config are managed/terminated
+- **Validation**: configuration errors are reported on screen and in the logs
+
+---
+
+## ❓ Troubleshooting
+
+- **App does not start**: check script path, permissions, logs, and that `python3` is installed
+- **Service does not start**: use `systemctl status python-apps-autostart.service` and `journalctl -u python-apps-autostart.service`
+- **Screen "Dead"**: restart with `./manage_apps.sh restart` or clean with `screen -wipe`
+- **jq not found**: `sudo apt-get install jq`
+- **Permissions**: make sure all scripts are executable
+
+---
+
+## 📚 Example Full Workflow
+
+```bash
+# 1. Configure apps in app_manager/apps_config.json
+# 2. Make all scripts executable
+chmod +x app_manager/*.sh service_installer/*.sh
+
+# 3. Install the service (optional)
+cd service_installer
+sudo ./install_service.sh
+
+# 4. Manage the apps
+cd ../app_manager
+./manage_apps.sh start
+./manage_apps.sh status
+./manage_apps.sh logs
+```
+
+---
+
+**For any questions, check this README or the comments in the individual scripts!** 

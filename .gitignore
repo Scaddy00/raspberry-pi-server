@@ -418,3 +418,6 @@ FodyWeavers.xsd
 *.msp
 .DS_Store
 /.vscode
+
+# Ignore the app configuration file
+app_manager/apps_config.json
