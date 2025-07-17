@@ -2,7 +2,7 @@
 
 # Stop only screen sessions defined in the configuration file
 
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+set -uo pipefail  # Exit on undefined vars, pipe failures (but not on command errors)
 
 # Source the configuration utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

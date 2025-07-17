@@ -3,7 +3,7 @@
 # Manage Python applications - start, stop, status, restart, list
 # Usage: ./manage_apps.sh [start|stop|status|restart|list|logs]
 
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+set -uo pipefail  # Exit on undefined vars, pipe failures (but not on command errors)
 
 # Source the configuration utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

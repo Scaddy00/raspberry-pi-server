@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=oneshot
 User=%i
-WorkingDirectory=/home/%i/raspberry-pi-server
-ExecStart=/bin/bash /home/%i/raspberry-pi-server/app_manager/start_scripts.sh
+WorkingDirectory=/home/%i/raspberry-pi-server/app_manager
+ExecStart=/bin/bash start_scripts.sh
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal
