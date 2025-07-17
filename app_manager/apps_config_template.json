@@ -7,8 +7,8 @@
     }
   },
   "settings": {
-    "main_dir": "/home/USERNAME",
+    "main_dir": "/home/$USER",
     "python_cmd": "python3",
-    "log_dir": "/home/USERNAME/bash_logs"
+    "log_dir": "/home/$USER/bash_logs"
   }
 } 

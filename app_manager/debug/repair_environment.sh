@@ -5,6 +5,9 @@ set -e
 
 echo "=== Fixing Installation Issues ==="
 
+# Get current user
+CURRENT_USER=$(whoami)
+
 # 1. Install jq if not present
 echo "1. Checking and installing jq..."
 if ! command -v jq &> /dev/null; then
@@ -19,7 +22,7 @@ fi
 # 2. Create log directory if it doesn't exist
 echo ""
 echo "2. Creating log directory..."
-LOG_DIR="/home/scad-pi/bash_logs"
+LOG_DIR="/home/$CURRENT_USER/bash_logs"
 if [ ! -d "$LOG_DIR" ]; then
     echo "Creating log directory: $LOG_DIR"
     mkdir -p "$LOG_DIR"
@@ -31,7 +34,7 @@ fi
 # 3. Check and create app directories
 echo ""
 echo "3. Checking app directories..."
-MAIN_DIR="/home/scad-pi"
+MAIN_DIR="/home/$CURRENT_USER"
 declare -a REQUIRED_DIRS=(
     "$MAIN_DIR/apps/wish_discord_bot"
     "$MAIN_DIR/apps/jw_group_app"
@@ -95,5 +98,5 @@ echo ""
 echo "=== Fix Complete ==="
 echo ""
 echo "You can now try starting the service again:"
-echo "  sudo systemctl start python-apps-autostart-scad-pi.service"
-echo "  sudo systemctl status python-apps-autostart-scad-pi.service" 
+echo "  sudo systemctl start python-apps-autostart-$CURRENT_USER.service"
+echo "  sudo systemctl status python-apps-autostart-$CURRENT_USER.service" 

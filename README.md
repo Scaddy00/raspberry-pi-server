@@ -151,9 +151,9 @@ Edit `app_manager/apps_config.json` to add/remove apps:
     }
   },
   "settings": {
-    "main_dir": "/home/pi",
+    "main_dir": "/home/$USER",
     "python_cmd": "python3",
-    "log_dir": "/home/pi/bash_logs"
+    "log_dir": "/home/$USER/bash_logs"
   }
 }
 ```
