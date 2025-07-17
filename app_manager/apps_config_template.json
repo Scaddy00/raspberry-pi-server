@@ -1,0 +1,14 @@
+{
+  "apps": {
+    "example_app": {
+      "script_path": "apps/example_app/main.py",
+      "screen_name": "pyapp_example_app",
+      "description": "Example Python application"
+    }
+  },
+  "settings": {
+    "main_dir": "/home/USERNAME",
+    "python_cmd": "python3",
+    "log_dir": "/home/USERNAME/bash_logs"
+  }
+} 

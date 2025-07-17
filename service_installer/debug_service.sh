@@ -5,6 +5,12 @@
 echo "=== SYSTEMD SERVICE DIAGNOSTICS ==="
 echo ""
 
+# Get current user
+CURRENT_USER=${SUDO_USER:-$USER}
+if [ -z "$CURRENT_USER" ]; then
+    CURRENT_USER=$(whoami)
+fi
+
 # Check if the service file exists
 echo "1. Service file verification:"
 if [ -f "/etc/systemd/system/python-apps-autostart.service" ]; then
@@ -18,17 +24,17 @@ echo ""
 
 # Check service status
 echo "2. Service status:"
-systemctl status python-apps-autostart.service
+systemctl status python-apps-autostart@$CURRENT_USER.service
 echo ""
 
 # Check service logs
 echo "3. Recent service logs:"
-journalctl -u python-apps-autostart.service --no-pager -n 20
+journalctl -u python-apps-autostart@$CURRENT_USER.service --no-pager -n 20
 echo ""
 
 # Check if app_manager directory exists
 echo "4. App manager directory verification:"
-if [ -d "/home/scad-pi/raspberry_pi_server/app_manager" ]; then
+if [ -d "/home/$CURRENT_USER/raspberry_pi_server/app_manager" ]; then
     echo "   ✓ App manager directory found"
 else
     echo "   ✗ App manager directory NOT found"
@@ -38,9 +44,9 @@ echo ""
 # Check if required scripts exist and are executable
 echo "5. Script verification:"
 required_scripts=(
-    "/home/scad-pi/raspberry_pi_server/app_manager/start_scripts.sh"
-    "/home/scad-pi/raspberry_pi_server/app_manager/config_utils.sh"
-    "/home/scad-pi/raspberry_pi_server/app_manager/manage_apps.sh"
+    "/home/$CURRENT_USER/raspberry_pi_server/app_manager/start_scripts.sh"
+    "/home/$CURRENT_USER/raspberry_pi_server/app_manager/config_utils.sh"
+    "/home/$CURRENT_USER/raspberry_pi_server/app_manager/manage_apps.sh"
 )
 
 for script in "${required_scripts[@]}"; do
@@ -59,7 +65,7 @@ echo ""
 
 # Check if config file exists
 echo "6. Configuration file verification:"
-config_file="/home/scad-pi/raspberry_pi_server/app_manager/apps_config.json"
+config_file="/home/$CURRENT_USER/raspberry_pi_server/app_manager/apps_config.json"
 if [ -f "$config_file" ]; then
     echo "   ✓ Config file found"
     if command -v jq &> /dev/null; then
@@ -78,13 +84,13 @@ echo ""
 
 # Check directory permissions
 echo "7. Directory permissions:"
-ls -la /home/scad-pi/raspberry_pi_server/ | head -10
+ls -la /home/$CURRENT_USER/raspberry_pi_server/ | head -10
 echo ""
 
 # Manual script test
 echo "8. Manual script test:"
 echo "   Executing app manager start script..."
-cd /home/scad-pi/raspberry_pi_server/app_manager && ./start_scripts.sh
+cd /home/$CURRENT_USER/raspberry_pi_server/app_manager && ./start_scripts.sh
 echo ""
 
 echo "=== DIAGNOSTICS COMPLETE ==="

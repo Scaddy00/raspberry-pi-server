@@ -6,11 +6,20 @@
 SERVICE_NAME=python-apps-autostart.service
 SERVICE_PATH=/etc/systemd/system/$SERVICE_NAME
 
+# Get current user or use default
+CURRENT_USER=${SUDO_USER:-$USER}
+if [ -z "$CURRENT_USER" ]; then
+    echo "Error: Cannot determine current user"
+    exit 1
+fi
+
+echo "Installing systemd service for user: $CURRENT_USER"
+
 echo "Installing systemd service for Python app manager..."
 
 # Verify that files exist
-if [ ! -f "start_scripts.service" ]; then
-    echo "Error: start_scripts.service not found!"
+if [ ! -f "python-apps-autostart.service" ]; then
+    echo "Error: python-apps-autostart.service not found!"
     exit 1
 fi
 
@@ -36,21 +45,22 @@ fi
 chmod +x ../app_manager/*.sh
 
 # Copy the service file to the systemd directory (with correct path)
-sudo cp start_scripts.service $SERVICE_PATH
+sudo cp python-apps-autostart.service $SERVICE_PATH
+
+# Create user-specific service instance
+sudo systemctl link $SERVICE_PATH
+sudo systemctl enable python-apps-autostart@$CURRENT_USER.service
 
 # Reload systemd configuration
 sudo systemctl daemon-reload
 
-# Enable the service for automatic startup
-sudo systemctl enable $SERVICE_NAME
-
 echo "Service installed and enabled!"
 echo ""
 echo "Useful commands:"
-echo "  sudo systemctl start $SERVICE_NAME    # Start the service"
-echo "  sudo systemctl stop $SERVICE_NAME     # Stop the service"
-echo "  sudo systemctl status $SERVICE_NAME   # Check status"
-echo "  sudo systemctl restart $SERVICE_NAME  # Restart the service"
-echo "  sudo journalctl -u $SERVICE_NAME -f  # View logs in real-time"
+echo "  sudo systemctl start python-apps-autostart@$CURRENT_USER.service    # Start the service"
+echo "  sudo systemctl stop python-apps-autostart@$CURRENT_USER.service     # Stop the service"
+echo "  sudo systemctl status python-apps-autostart@$CURRENT_USER.service   # Check status"
+echo "  sudo systemctl restart python-apps-autostart@$CURRENT_USER.service  # Restart the service"
+echo "  sudo journalctl -u python-apps-autostart@$CURRENT_USER.service -f  # View logs in real-time"
 echo ""
 echo "Note: The service will start apps defined in app_manager/apps_config.json" 

@@ -10,17 +10,18 @@ This repository provides a complete system to:
 
 ```
 app_manager/
-  manage_apps.sh           # Main script to manage all apps
-  start_scripts.sh         # Starts all apps in screen sessions
-  stop_scripts.sh          # Stops all apps
-  config_utils.sh          # Utility to read the JSON configuration
-  apps_config.json         # Centralized app configuration
+  manage_apps.sh                   # Main script to manage all apps
+  start_scripts.sh                 # Starts all apps in screen sessions
+  stop_scripts.sh                  # Stops all apps
+  config_utils.sh                  # Utility to read the JSON configuration
+  apps_config.json                 # Centralized app configuration
+  apps_config_template.json        # Template for new configurations
 
 service_installer/
   python-apps-autostart.service    # systemd unit file for automatic startup
-  install_service.sh       # Script to install the service
-  set_permissions.sh       # Script to set correct permissions
-  debug_service.sh         # Script to debug the service
+  install_service.sh               # Script to install the service
+  set_permissions.sh               # Script to set correct permissions
+  debug_service.sh                 # Script to debug the service
 ```
 
 ---
@@ -142,12 +143,12 @@ sudo ./install_service.sh
 
 Check the service status:
 ```bash
-systemctl status python-apps-autostart.service
+systemctl status python-apps-autostart@$(whoami).service
 ```
 
 View the service logs:
 ```bash
-journalctl -u python-apps-autostart.service -e
+journalctl -u python-apps-autostart@$(whoami).service -e
 ```
 
 ### 3. Debug & Permissions
@@ -170,7 +171,7 @@ journalctl -u python-apps-autostart.service -e
 ## ❓ Troubleshooting
 
 - **App does not start**: check script path, permissions, logs, and that `python3` is installed
-- **Service does not start**: use `systemctl status python-apps-autostart.service` and `journalctl -u python-apps-autostart.service`
+- **Service does not start**: use `systemctl status python-apps-autostart@$(whoami).service` and `journalctl -u python-apps-autostart@$(whoami).service`
 - **Screen "Dead"**: restart with `./manage_apps.sh restart` or clean with `screen -wipe`
 - **jq not found**: `sudo apt-get install jq`
 - **Permissions**: make sure all scripts are executable
