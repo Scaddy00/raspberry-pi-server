@@ -8,6 +8,67 @@ This repository provides a complete system to:
 
 ---
 
+## 🚦 Step-by-step Installation Guide
+
+Follow these steps to set up and use the Python App Manager on your Raspberry Pi (or compatible Linux system):
+
+1. **Clone the repository**
+   ```bash
+   git clone <REPO_URL>
+   cd raspberry-pi-server
+   ```
+
+2. **Install required dependencies**
+   ```bash
+   sudo apt-get update
+   sudo apt-get install python3 jq screen
+   ```
+
+3. **Configure your applications**
+   - Edit `app_manager/apps_config.json` to add your Python apps and adjust settings (see the example in the next section).
+
+4. **Make all scripts executable**
+   ```bash
+   chmod +x app_manager/*.sh service_installer/*.sh
+   chmod +x app_manager/debug/*.sh service_installer/debug/*.sh
+   ```
+
+5. **(Optional) Fix permissions**
+   - If you encounter permission issues, run:
+     ```bash
+     cd service_installer
+     ./fix_permissions.sh
+     cd ..
+     ```
+
+6. **(Optional) Install the systemd service for autostart**
+   ```bash
+   cd service_installer
+   sudo ./install_service.sh
+   cd ..
+   ```
+   - This will set up a systemd service to automatically start your apps at boot.
+
+7. **Manage your applications**
+   - Go to the app_manager directory:
+     ```bash
+     cd app_manager
+     ```
+   - Use the main commands:
+     ```bash
+     ./manage_apps.sh start      # Start all apps
+     ./manage_apps.sh stop       # Stop all apps
+     ./manage_apps.sh status     # Show status
+     ./manage_apps.sh restart    # Restart all apps
+     ./manage_apps.sh list       # List configured apps
+     ./manage_apps.sh logs       # Show recent logs
+     ```
+
+8. **(Optional) Advanced debugging and repair**
+   - Use the scripts in `app_manager/debug/` and `service_installer/debug/` for troubleshooting, configuration validation, or repairing the environment.
+
+---
+
 ## 📁 Folder Structure
 
 ```
