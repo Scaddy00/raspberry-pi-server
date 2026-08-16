@@ -1,97 +1,97 @@
 #!/bin/bash
 
 # Debug script for service installation
-# Run this script as root (sudo)
 
-SERVICE_NAME=python-apps-autostart.service
-SERVICE_PATH=/etc/systemd/system/$SERVICE_NAME
+set -uo pipefail
 
-# Get current user or use default
-CURRENT_USER=${SUDO_USER:-$USER}
-if [ -z "$CURRENT_USER" ]; then
-    echo "Error: Cannot determine current user"
-    exit 1
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
-USER_SERVICE_NAME=python-apps-autostart-$CURRENT_USER.service
-USER_SERVICE_PATH=/etc/systemd/system/$USER_SERVICE_NAME
+CURRENT_USER=${SUDO_USER:-${USER:-$(id -un)}}
+
+AUTOSTART_UNIT="python-apps-autostart-$CURRENT_USER.service"
+WATCHDOG_UNIT="python-apps-watchdog-$CURRENT_USER.service"
+WATCHDOG_TIMER="python-apps-watchdog-$CURRENT_USER.timer"
 
 echo "=== Debug Service Installation ==="
 echo "Current user: $CURRENT_USER"
-echo "Template service name: $SERVICE_NAME"
-echo "Template service path: $SERVICE_PATH"
-echo "User service name: $USER_SERVICE_NAME"
-echo "User service path: $USER_SERVICE_PATH"
+echo "Repository root: $REPO_ROOT"
 echo ""
 
-# Check if template service file exists
-echo "1. Checking if template service file exists..."
-if [ -f "$SERVICE_PATH" ]; then
-    echo "✅ Template service file exists at $SERVICE_PATH"
-    echo "Content:"
-    cat "$SERVICE_PATH"
+# 1. Templates shipped in the repo
+echo "1. Unit templates in the repository:"
+for tpl in python-apps-autostart.service python-apps-watchdog.service python-apps-watchdog.timer; do
+    if [ -f "$REPO_ROOT/service_installer/$tpl" ]; then
+        echo "   ✅ $tpl"
+    else
+        echo "   ❌ $tpl NOT found"
+    fi
+done
+echo ""
+
+# 2. Installed units
+echo "2. Installed unit files:"
+for unit in "$AUTOSTART_UNIT" "$WATCHDOG_UNIT" "$WATCHDOG_TIMER"; do
+    if [ -f "/etc/systemd/system/$unit" ]; then
+        echo "   ✅ $unit installed"
+    else
+        echo "   ❌ $unit NOT installed"
+    fi
+done
+echo ""
+
+# 3. Content of the main installed unit
+echo "3. Content of $AUTOSTART_UNIT:"
+if [ -f "/etc/systemd/system/$AUTOSTART_UNIT" ]; then
+    cat "/etc/systemd/system/$AUTOSTART_UNIT"
     echo ""
+    # Unresolved placeholders mean the installer did not run correctly
+    if grep -q "__USER__\|__INSTALL_DIR__" "/etc/systemd/system/$AUTOSTART_UNIT"; then
+        echo "   ❌ Unresolved placeholders found - re-run: sudo ./install_service.sh"
+    elif grep -q "%i" "/etc/systemd/system/$AUTOSTART_UNIT"; then
+        echo "   ⚠️  Old-style %i placeholder found - re-run: sudo ./install_service.sh"
+    else
+        echo "   ✅ Placeholders correctly resolved"
+    fi
 else
-    echo "❌ Template service file not found at $SERVICE_PATH"
+    echo "   (not installed)"
+fi
+echo ""
+
+# 4. systemd registration
+echo "4. Registered units:"
+systemctl list-unit-files | grep -F "python-apps" || echo "   No python-apps units found"
+echo ""
+
+# 5. Enabled state
+echo "5. Enabled state:"
+for unit in "$AUTOSTART_UNIT" "$WATCHDOG_TIMER"; do
+    if systemctl is-enabled "$unit" >/dev/null 2>&1; then
+        echo "   ✅ $unit is enabled"
+    else
+        echo "   ❌ $unit is not enabled"
+    fi
+done
+echo ""
+
+# 6. Watchdog schedule
+echo "6. Watchdog schedule:"
+systemctl list-timers --no-pager 2>/dev/null | grep -F "python-apps" || echo "   Timer not scheduled"
+echo ""
+
+# 7. Status
+echo "7. Service status:"
+systemctl status "$AUTOSTART_UNIT" --no-pager || true
+echo ""
+
+# 8. Logrotate
+echo "8. Log rotation:"
+if [ -f /etc/logrotate.d/python-apps ]; then
+    echo "   ✅ /etc/logrotate.d/python-apps installed"
+    cat /etc/logrotate.d/python-apps
+else
+    echo "   ⚠️  logrotate config not installed (optional)"
 fi
 
-# Check if user-specific service file exists
-echo "2. Checking if user-specific service file exists..."
-if [ -f "$USER_SERVICE_PATH" ]; then
-    echo "✅ User service file exists at $USER_SERVICE_PATH"
-    echo "Content:"
-    cat "$USER_SERVICE_PATH"
-    echo ""
-else
-    echo "❌ User service file not found at $USER_SERVICE_PATH"
-fi
-
-# Check systemd unit files
-echo "3. Checking systemd unit files..."
-systemctl list-unit-files | grep python-apps || echo "No python-apps units found"
-
-# Check if template is recognized
 echo ""
-echo "4. Checking template recognition..."
-if systemctl list-unit-files | grep -q "$SERVICE_NAME"; then
-    echo "✅ Template is registered"
-else
-    echo "❌ Template not found in systemd"
-fi
-
-# Check if user service is recognized
-echo ""
-echo "5. Checking user service recognition..."
-if systemctl list-unit-files | grep -q "$USER_SERVICE_NAME"; then
-    echo "✅ User service is registered"
-else
-    echo "❌ User service not found in systemd"
-fi
-
-# Try to enable user service with verbose output
-echo ""
-echo "6. Trying to enable user service with verbose output..."
-if systemctl enable $USER_SERVICE_NAME --no-pager; then
-    echo "✅ User service enabled successfully"
-else
-    echo "❌ Failed to enable user service"
-    echo "Error details:"
-    systemctl enable $USER_SERVICE_NAME 2>&1
-fi
-
-# Check if user service exists now
-echo ""
-echo "7. Checking if user service exists..."
-if systemctl list-unit-files | grep -q "$USER_SERVICE_NAME"; then
-    echo "✅ User service exists"
-else
-    echo "❌ User service not found"
-fi
-
-# Check status
-echo ""
-echo "8. User service status:"
-systemctl status $USER_SERVICE_NAME --no-pager || echo "User service not found"
-
-echo ""
-echo "=== Debug Complete ===" 
+echo "=== Debug Complete ==="

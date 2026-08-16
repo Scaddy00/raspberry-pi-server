@@ -1,0 +1,11 @@
+[Unit]
+Description=Python Applications Watchdog (restarts crashed apps)
+After=network.target
+
+[Service]
+Type=oneshot
+User=__USER__
+WorkingDirectory=__INSTALL_DIR__/app_manager
+ExecStart=/bin/bash __INSTALL_DIR__/app_manager/manage_apps.sh heal
+StandardOutput=journal
+StandardError=journal

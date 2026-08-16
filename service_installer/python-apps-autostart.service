@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=oneshot
-User=%i
-WorkingDirectory=/home/%i/raspberry-pi-server/app_manager
-ExecStart=/bin/bash manage_apps.sh start
+User=__USER__
+WorkingDirectory=__INSTALL_DIR__/app_manager
+ExecStart=/bin/bash __INSTALL_DIR__/app_manager/manage_apps.sh start
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal

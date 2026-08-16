@@ -4,6 +4,12 @@
       "script_path": "apps/example_app/main.py",
       "screen_name": "pyapp_example_app",
       "description": "Example Python application"
+    },
+    "example_app_with_venv": {
+      "script_path": "apps/example_app_with_venv/main.py",
+      "screen_name": "pyapp_example_app_with_venv",
+      "python_cmd": "/home/$USER/apps/example_app_with_venv/.venv/bin/python",
+      "description": "Example app using its own virtualenv (python_cmd is optional)"
     }
   },
   "settings": {
@@ -11,4 +17,4 @@
     "python_cmd": "python3",
     "log_dir": "/home/$USER/bash_logs"
   }
-} 
+}

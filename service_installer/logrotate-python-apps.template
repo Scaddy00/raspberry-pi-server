@@ -1,0 +1,14 @@
+# Log rotation for the Python apps managed by raspberry-pi-server.
+# copytruncate is required: the Python processes keep the log file descriptor
+# open, so without it they would keep writing to the rotated inode and the
+# fresh file would stay empty.
+__LOG_DIR__/*.log {
+    weekly
+    rotate 4
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su __USER__ __USER__
+}

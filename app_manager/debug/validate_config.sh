@@ -41,6 +41,15 @@ else
 fi
 
 echo ""
+echo "3b. Validating configuration schema..."
+if validate_config_schema; then
+    echo "✅ Schema is valid (required fields present, screen names unique)"
+else
+    echo "❌ Schema validation failed"
+    exit 1
+fi
+
+echo ""
 echo "4. Testing configuration functions..."
 
 echo "Testing get_main_dir..."
@@ -72,7 +81,7 @@ for app in $app_names; do
     echo "    description: $(get_app_description "$app")"
     
     # Expand $USER in the main_dir and script_path
-    expanded_main_dir=$(eval echo "$main_dir")
+    expanded_main_dir=$(expand_path "$main_dir")
     script_path_rel=$(get_script_path "$app")
     expanded_script_path="$expanded_main_dir/$script_path_rel"
     echo "    full_script_path: $expanded_script_path"
@@ -97,7 +106,7 @@ fi
 echo ""
 echo "7. Checking log directory..."
 # Expand $USER in log_dir
-expanded_log_dir=$(eval echo "$log_dir")
+expanded_log_dir=$(expand_path "$log_dir")
 if [ -d "$expanded_log_dir" ]; then
     echo "✅ Log directory exists: $expanded_log_dir"
 else

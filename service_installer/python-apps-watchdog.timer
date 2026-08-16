@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the Python applications watchdog periodically
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+Unit=__WATCHDOG_SERVICE__
+
+[Install]
+WantedBy=timers.target
