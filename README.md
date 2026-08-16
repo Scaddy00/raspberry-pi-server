@@ -20,7 +20,8 @@ This repository provides a complete system to:
   - [2. Main Commands (from app_manager/)](#2-main-commands-from-app_manager)
   - [3. Service Installation and Management (from service_installer/)](#3-service-installation-and-management-from-service_installer)
   - [4. Watchdog (automatic restart)](#4-watchdog-automatic-restart)
-  - [5. Log rotation](#5-log-rotation)
+  - [5. Logs: where they are and how to read them](#5-logs-where-they-are-and-how-to-read-them)
+  - [6. Log rotation](#6-log-rotation)
 - [📝 Useful Notes](#-useful-notes)
 - [❓ Troubleshooting](#-troubleshooting)
 
@@ -304,7 +305,42 @@ cd app_manager && ./manage_apps.sh heal
 To change the interval, edit `OnUnitActiveSec` in `python-apps-watchdog.timer` and
 re-run `sudo ./install_service.sh`.
 
-### 5. Log rotation
+### 5. Logs: where they are and how to read them
+
+**Location:** one file per app, at `log_dir/<app_name>.log` (`log_dir` comes from
+`settings.log_dir` in `apps_config.json`, e.g. `/home/pi/bash_logs/`). Plus
+`manage_apps.log` in the same directory, an audit trail of every start/stop/heal/
+restart with timestamps.
+
+**How they get written:** each app runs inside its own `screen` session with
+stdout/stderr redirected straight into its log file, launched with `python -u`
+(unbuffered) so output shows up immediately instead of sitting in a buffer until
+the process exits. Because output goes to the file, attaching the screen session
+(`screen -r pyapp_name`) shows a blank terminal — that's expected, read the log
+file instead.
+
+**Viewing logs:**
+```bash
+# Last 10 lines of every app, plus the manager log
+./manage_apps.sh logs
+
+# Live tail of one app (path = your configured log_dir + <app_name>.log)
+tail -f /home/$USER/bash_logs/discord_bot.log
+```
+
+**Other log sources:**
+- `journalctl -u python-apps-autostart-$(whoami).service -e` — only the boot-time
+  `manage_apps.sh start` run itself, not each app's output (that's already redirected
+  to its own file)
+- `journalctl -u python-apps-watchdog-$(whoami).service -e` — watchdog runs (see
+  [4. Watchdog](#4-watchdog-automatic-restart))
+
+**Security:** app logs can contain whatever the app prints at startup, including API
+keys, bot tokens, or database credentials. Don't paste raw log output into chat,
+tickets, or issues without checking it first — if a secret leaks that way, treat it
+as compromised and rotate it, redacting after the fact does not undo the exposure.
+
+### 6. Log rotation
 
 `install_service.sh` writes `/etc/logrotate.d/python-apps`, rotating the logs in
 `log_dir` weekly and keeping 4 compressed generations.
@@ -330,7 +366,7 @@ For advanced debugging:
 ## 📝 Useful Notes
 
 - **Adding new apps**: Edit `apps_config.json` and restart via `manage_apps.sh restart`.
-- **Logs**: Each app writes to `log_dir/<app_name>.log`; the manager writes to `manage_apps.log`.
+- **Logs**: Each app writes to `log_dir/<app_name>.log`; the manager writes to `manage_apps.log`. See [5. Logs](#5-logs-where-they-are-and-how-to-read-them).
 - **Screen**: Each app runs in a separate screen session, you can attach with `screen -r screen_name`.
   Since output is redirected to the log file, an attached session shows no output — read the log instead.
 - **Safety**: Only apps defined in the config are managed/terminated. Screen names are matched
