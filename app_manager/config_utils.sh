@@ -131,6 +131,17 @@ load_config() {
     EXPANDED_LOG_DIR="$(expand_path "$LOG_DIR")"
 }
 
+# Resolve the interpreter for an app: per-app override, else the global default.
+# A per-app python_cmd is relative to main_dir, same convention as script_path
+# (e.g. "apps/my_app/.venv/bin/python"). Requires load_config to have run first.
+app_python_cmd() {
+    if [ -n "$1" ]; then
+        printf '%s' "$EXPANDED_MAIN_DIR/$1"
+    else
+        printf '%s' "$PYTHON_CMD"
+    fi
+}
+
 # Anchored screen session lookups.
 # An unanchored match on "pyapp_foo" also matches "pyapp_foo2".
 screen_session_exists() {

@@ -8,7 +8,7 @@
     "example_app_with_venv": {
       "script_path": "apps/example_app_with_venv/main.py",
       "screen_name": "pyapp_example_app_with_venv",
-      "python_cmd": "/home/$USER/apps/example_app_with_venv/.venv/bin/python",
+      "python_cmd": "apps/example_app_with_venv/.venv/bin/python",
       "description": "Example app using its own virtualenv (python_cmd is optional)"
     }
   },

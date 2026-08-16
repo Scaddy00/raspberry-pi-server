@@ -189,7 +189,7 @@ Edit `app_manager/apps_config.json` to add/remove apps:
     "my_venv_app": {
       "script_path": "apps/my_venv_app/main.py",
       "screen_name": "pyapp_my_venv_app",
-      "python_cmd": "/home/$USER/apps/my_venv_app/.venv/bin/python",
+      "python_cmd": "apps/my_venv_app/.venv/bin/python",
       "description": "App running in its own virtualenv"
     }
   },
@@ -202,8 +202,9 @@ Edit `app_manager/apps_config.json` to add/remove apps:
 ```
 
 **Per-app interpreter:** `python_cmd` inside an app is optional. When omitted, the
-app uses `settings.python_cmd`. Set it to a virtualenv interpreter when an app needs
-its own dependencies.
+app uses `settings.python_cmd`. When set, it follows the same convention as
+`script_path`: relative to `main_dir`, starting from `apps/`. Use it to point an app
+at its own virtualenv.
 
 **Validation:** the configuration is checked on every run. Startup fails with a clear
 message if a required field is missing or if two apps share the same `screen_name`.
@@ -374,7 +375,8 @@ For advanced debugging:
 - **Validation**: Configuration errors are reported on screen and in the logs.
 - **Repair**: Use `repair_environment.sh` to fix common installation issues automatically.
   Add `--create-placeholders` if you also want stub `main.py` files created for missing scripts.
-- **Virtualenvs**: Give an app its own interpreter with a per-app `python_cmd`.
+- **Virtualenvs**: Give an app its own interpreter with a per-app `python_cmd`,
+  relative to `main_dir` just like `script_path` (e.g. `apps/my_app/.venv/bin/python`).
 
 ---
 

@@ -31,15 +31,6 @@ log_message() {
     echo "$log_entry" | tee -a "$log_file"
 }
 
-# Resolve the interpreter for an app: per-app override, else the global default
-app_python_cmd() {
-    if [ -n "$1" ]; then
-        printf '%s' "$1"
-    else
-        printf '%s' "$PYTHON_CMD"
-    fi
-}
-
 # Function to show usage
 show_usage() {
     log_message "INFO" "Usage: $0 [start|stop|status|restart|list|logs|heal]"

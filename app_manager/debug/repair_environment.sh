@@ -105,7 +105,7 @@ fi
 echo ""
 echo "5. Checking Python interpreters..."
 while IFS="$CONFIG_FS" read -r app screen_name script_path_rel app_python description; do
-    py="${app_python:-$PYTHON_CMD}"
+    py="$(app_python_cmd "$app_python")"
     if command -v "$py" >/dev/null 2>&1 || [ -x "$py" ]; then
         echo "✅ $app: $py"
     else
